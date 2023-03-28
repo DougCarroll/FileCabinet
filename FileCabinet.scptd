@@ -1,0 +1,31 @@
+using terms from application "Mail"
+	on perform mail action with messages theseMessages for rule this_rule
+		
+		set {year:y, month:m} to (current date)
+		set folderName to y & "_" & m
+		
+		set posixFilingCabinet to "/Users/doug/Library/Mobile Documents/com~apple~CloudDocs/FilingCabinet"
+		set posixFullPath to posixFilingCabinet & "/" & folderName
+		
+		set pathToFileCabinet to POSIX file posixFilingCabinet as string
+		set fullPath to POSIX file posixFullPath as string
+		
+		tell application "System Events" to set folderExists to exists folder fullPath
+		
+		if folderExists then
+			log "Folder Exists"
+		else
+			tell application "Finder"
+				make new folder at pathToFileCabinet with properties {name:folderName as text}
+			end tell
+		end if
+		
+		repeat with thisMessage in theseMessages
+			repeat with thisAttachment in mail attachments of thisMessage
+				set originalName to name of thisAttachment
+				save thisAttachment in file (fullPath & originalName)
+			end repeat
+		end repeat
+		
+	end perform mail action with messages
+end using terms from
